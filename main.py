@@ -18,6 +18,43 @@ class Tile:
         self.type = t_type
         self.overlay = overlay
 
+class Camera:
+    def __init__(self):
+        self.x = 0
+        self.y = 0
+        self.zoom = DEFAULT_ZOOM
+
+    def handle_zoom(self, mouse_pos, direction, world):
+        mx, my = mouse_pos
+        wx, wy = (mx - self.x) / self.zoom, (my - self.y) / self.zoom
+        old_zoom = self.zoom
+        if direction == "in":
+            self.zoom = min(MAX_ZOOM, self.zoom + ZOOM_STEP)
+        else:
+            self.zoom = max(MIN_ZOOM, self.zoom - ZOOM_STEP)
+        
+        if old_zoom != self.zoom:
+            new_surf = world.update_view(self.zoom)
+            self.x = mx - wx * self.zoom
+            self.y = my - wy * self.zoom
+            return new_surf
+        return None
+
+    def handle_move(self, rel):
+        self.x += rel[0]
+        self.y += rel[1]
+
+    def apply_limits(self, view_surf):
+        vw, vh = view_surf.get_size()
+        if vw > SCREEN_SIZE:
+            self.x = min(0, max(self.x, SCREEN_SIZE - vw))
+        else:
+            self.x = (SCREEN_SIZE - vw) // 2
+        if vh > SCREEN_SIZE:
+            self.y = min(0, max(self.y, SCREEN_SIZE - vh))
+        else:
+            self.y = (SCREEN_SIZE - vh) // 2
+
 class World:
     def __init__(self, w, h, seed=None):
         self.w, self.h = w, h
@@ -104,35 +141,29 @@ def main():
     screen = pg.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
     clock = pg.time.Clock()
     world = World(W_TILES, H_TILES)
-    zoom, cam_x, cam_y, dragging = 1.0, 0, 0, False
-    view_surf = world.update_view(zoom)
-
+    camera = Camera()
+    dragging = False
+    view_surf = world.update_view(camera.zoom)
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: pg.quit(); return
             if event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 3: dragging = True
-                elif event.button in (4, 5):
-                    mx, my = pg.mouse.get_pos()
-                    wx, wy = (mx - cam_x) / zoom, (my - cam_y) / zoom
-                    if event.button == 4: zoom = min(MAX_ZOOM, zoom + ZOOM_STEP)
-                    else: zoom = max(MIN_ZOOM, zoom - ZOOM_STEP)
-                    view_surf = world.update_view(zoom)
-                    cam_x, cam_y = mx - wx * zoom, my - wy * zoom
-            elif event.type == pg.MOUSEBUTTONUP and event.button == 3: dragging = False
+                elif event.button == 4:
+                    res = camera.handle_zoom(event.pos, "in", world)
+                    if res: view_surf = res
+                elif event.button == 5:
+                    res = camera.handle_zoom(event.pos, "out", world)
+                    if res: view_surf = res
+            elif event.type == pg.MOUSEBUTTONUP:
+                if event.button == 3: dragging = False
             elif event.type == pg.MOUSEMOTION and dragging:
-                cam_x += event.rel[0]
-                cam_y += event.rel[1]
-
-        vw, vh = view_surf.get_size()
-        cam_x = min(0, max(cam_x, SCREEN_SIZE - vw)) if vw > SCREEN_SIZE else (SCREEN_SIZE - vw) // 2
-        cam_y = min(0, max(cam_y, SCREEN_SIZE - vh)) if vh > SCREEN_SIZE else (SCREEN_SIZE - vh) // 2
-
+                camera.handle_move(event.rel)
+        camera.apply_limits(view_surf)
         screen.fill((30, 30, 30))
-        screen.blit(view_surf, (cam_x, cam_y))
+        screen.blit(view_surf, (camera.x, camera.y))
         pg.display.flip()
         clock.tick(FPS)
 
-pg.quit()
 if __name__ == "__main__":
     main()
