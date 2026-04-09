@@ -40,6 +40,7 @@ class UnitGroup:
             unit.group = None
         if not self.units:
             self.world.unit_groups[self.x][self.y] = None
+            self.world.active_groups.discard(self)
             return
         if unit is self.main_unit:
             self.main_unit = self.units[0]
@@ -73,3 +74,4 @@ class Unit:
         else:
             new_group = UnitGroup([self], self.x, self.y, self.world)
             self.world.unit_groups[self.x][self.y] = new_group
+            self.world.active_groups.add(new_group)

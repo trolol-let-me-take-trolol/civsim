@@ -89,19 +89,17 @@ class WorldRenderer:
         return pg.transform.smoothscale(self.full_surf, size)
 
     def draw_units(self, screen, camera):
-        for y in range(self.world.h):
-            for x in range(self.world.w):
-                group = self.world.unit_groups[x][y]
-                if group:
-                    # Рисуем юнитов с учетом зума и смещения камеры
-                    ux = x * CELL_SIZE * camera.zoom + camera.x
-                    uy = y * CELL_SIZE * camera.zoom + camera.y
-                    u_size = int(CELL_SIZE * camera.zoom)
-                    img = pg.transform.scale(
-                        get_object_texture(group.main_unit),
-                        (u_size, u_size)
-                    )
-                    screen.blit(img, (ux, uy))
+        for group in self.world.active_groups:
+            x, y = group.x, group.y
+            # Рисуем юнитов с учетом зума и смещения камеры
+            ux = x * CELL_SIZE * camera.zoom + camera.x
+            uy = y * CELL_SIZE * camera.zoom + camera.y
+            u_size = int(CELL_SIZE * camera.zoom)
+            img = pg.transform.scale(
+                get_object_texture(group.main_unit),
+                (u_size, u_size)
+            )
+            screen.blit(img, (ux, uy))
 
     def draw_ui(self, screen, camera, world):
         tx, ty = camera.screen_to_world(pg.mouse.get_pos())

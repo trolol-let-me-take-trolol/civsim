@@ -23,9 +23,11 @@ class World:
         self.seed = seed if seed is not None else random.randint(0, 10**10)
         self.tiles = [[Tile() for _ in range(h)] for _ in range(w)]
         self.unit_groups = [[None for _ in range(h)] for _ in range(w)]
+        self.active_groups = set()
         # Создаем начального юнита
         start_unit = units[0]["class"](self, 25, 25)
         self.unit_groups[25][25] = UnitGroup([start_unit], 25, 25, self)
+        self.active_groups.add(self.unit_groups[25][25])
         self.generate()
 
     def get_tile(self, x, y):
@@ -94,8 +96,5 @@ class World:
         self.place_iron()
 
     def update(self):
-        for x in range(self.w):
-            for y in range(self.h):
-                group = self.unit_groups[x][y]
-                if group:
-                    group.update(self)
+        for group in self.active_groups:
+            group.update(self)
