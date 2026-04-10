@@ -2,13 +2,15 @@ import random
 import hashlib
 from settings import *
 from core.unitsys import UnitGroup, Unit
+from core.buildsys import Building
 
 class Tile:
-    __slots__ = ('type', 'overlay')
+    __slots__ = ('type', 'overlay', 'building')
 
     def __init__(self, t_type=TILE_PLAIN, overlay=OVERLAY_NONE):
         self.type = t_type
         self.overlay = overlay
+        self.building = None
 
     def get_resources(self):
         base_f, base_p, base_g = TILE_STATS[self.type]
@@ -17,7 +19,7 @@ class Tile:
 
 
 class World:
-    def __init__(self, w, h, units, seed=None):
+    def __init__(self, w, h, units, buildings, seed=None):
         self.w = w
         self.h = h
         self.seed = seed if seed is not None else random.randint(0, 10**10)
@@ -28,6 +30,8 @@ class World:
         start_unit = units[0]["class"](self, 25, 25)
         self.unit_groups[25][25] = UnitGroup([start_unit], 25, 25, self)
         self.active_groups.add(self.unit_groups[25][25])
+        #Ставим здание
+        buildings[0]["class"](self, 15, 15)
         self.generate()
 
     def get_tile(self, x, y):

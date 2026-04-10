@@ -1,5 +1,3 @@
-import random
-
 class UnitGroup:
     def __init__(self, units, x, y, world):
         self.x = x
@@ -52,6 +50,10 @@ class Unit:
         self.x = x
         self.y = y
         self.group = None
+        self.on_init()
+
+    def on_init(self):
+        pass
 
     def update(self, world):
         pass

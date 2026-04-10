@@ -3,6 +3,7 @@ import os
 from settings import *
 from core.worldgen import World, Tile
 from core.unitsys import Unit
+from core.buildsys import Building
 from importlib import import_module
 
 def load_texture(name):
@@ -17,6 +18,8 @@ def get_object_texture(obj):
     if isinstance(obj, Tile):
         texture = pg.Surface((CELL_SIZE, CELL_SIZE))
         texture.blit(tile_textures[obj.type], (0, 0))
+        if obj.building:
+            texture.blit(buildings[obj.building.id]["texture"], (0, 0))
         if obj.overlay:
             texture.blit(overlay_textures[obj.overlay], (0, 0))
     elif isinstance(obj, Unit):
@@ -115,8 +118,9 @@ class WorldRenderer:
             pg.display.set_caption(info)
 
 def init():
-    global units, tile_textures, overlay_textures
-    units={}
+    global units, tile_textures, overlay_textures, building_textures, buildings
+    units = {}
+    buildings = {}
     for file in os.listdir('units'):
         if not os.path.isfile(os.path.join('units', file)):
             continue
@@ -124,10 +128,26 @@ def init():
         if not fname.isalnum():
             continue
         unit_cls = import_module(f'units.{fname}').register_unit()
+        if not issubclass(unit_cls, Unit):
+            continue
         units[unit_cls.id] = {
             "name": unit_cls.name,
             "class": unit_cls,
             "texture": load_texture(f'units/{unit_cls.texture}')
+            }
+    for file in os.listdir('buildings'):
+        if not os.path.isfile(os.path.join('buildings', file)):
+            continue
+        fname=file.split('.')[0]
+        if not fname.isalnum():
+            continue
+        build_cls = import_module(f'buildings.{fname}').register_building()
+        if not issubclass(build_cls, Building):
+            continue
+        buildings[build_cls.id] = {
+            "name": build_cls.name,
+            "class": build_cls,
+            "texture": load_texture(f'buildings/{build_cls.texture}')
             }
     
     tile_textures = [
@@ -146,7 +166,7 @@ def main():
     screen = pg.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
     init()
     clock = pg.time.Clock()
-    world = World(W_TILES, H_TILES, units)
+    world = World(W_TILES, H_TILES, units, buildings)
     renderer = WorldRenderer(world)
     camera = Camera()
     dragging = False
