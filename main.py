@@ -18,10 +18,10 @@ def get_object_texture(obj):
     if isinstance(obj, Tile):
         texture = pg.Surface((CELL_SIZE, CELL_SIZE))
         texture.blit(tile_textures[obj.type], (0, 0))
-        if obj.building:
-            texture.blit(buildings[obj.building.id]["texture"], (0, 0))
         if obj.overlay:
             texture.blit(overlay_textures[obj.overlay], (0, 0))
+        if obj.building:
+            texture.blit(buildings[obj.building.id]["texture"], (0, 0))
     elif isinstance(obj, Unit):
         texture = units[obj.id]["texture"]
     else:
