@@ -7,9 +7,25 @@ from core.buildsys import Building
 from importlib import import_module
 
 def load_texture(name):
-    path = f"textures/{name}.png"
+    path = os.path.join('textures', f"{name}.png")
     if os.path.isfile(path):
-        return pg.image.load(path).convert_alpha()
+        surf = pg.image.load(path).convert_alpha()
+        w, h = surf.get_size()
+        corners = [surf.get_at((0, 0)), surf.get_at((w - 1, 0)),
+                   surf.get_at((0, h - 1)), surf.get_at((w - 1, h - 1))]
+        if all(c[3] == 0 for c in corners):
+            has_black_opaque = False
+            for x in range(w):
+                for y in range(h):
+                    c = surf.get_at((x, y))
+                    if c[3] != 0 and c[:3] == (0, 0, 0):
+                        has_black_opaque = True
+                        break
+                if has_black_opaque:
+                    break
+            if has_black_opaque:
+                surf.set_colorkey((0, 0, 0))
+        return surf
     surf = pg.Surface((CELL_SIZE, CELL_SIZE))
     surf.fill((255, 0, 255))
     return surf
