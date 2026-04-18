@@ -70,16 +70,16 @@ class Camera:
         self.x += rel[0]
         self.y += rel[1]
 
-    def apply_limits(self, view_surf):
+    def apply_limits(self, view_surf, screen_width, screen_height):
         vw, vh = view_surf.get_size()
-        if vw > SCREEN_SIZE:
-            self.x = min(0, max(self.x, SCREEN_SIZE - vw))
+        if vw > screen_width:
+            self.x = min(0, max(self.x, screen_width - vw))
         else:
-            self.x = (SCREEN_SIZE - vw) // 2
-        if vh > SCREEN_SIZE:
-            self.y = min(0, max(self.y, SCREEN_SIZE - vh))
+            self.x = (screen_width - vw) // 2
+        if vh > screen_height:
+            self.y = min(0, max(self.y, screen_height - vh))
         else:
-            self.y = (SCREEN_SIZE - vh) // 2
+            self.y = (screen_height - vh) // 2
 
     def screen_to_world(self, mouse_pos):
         mx, my = mouse_pos
@@ -179,7 +179,8 @@ def init():
 
 def main():
     pg.init()
-    screen = pg.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
+    screen_width, screen_height = 640, 640
+    screen = pg.display.set_mode((screen_width, screen_height), pg.RESIZABLE)
     init()
     clock = pg.time.Clock()
     world = World(W_TILES, H_TILES, units, buildings)
@@ -193,7 +194,10 @@ def main():
             if event.type == pg.QUIT:
                 pg.quit()
                 return
-            if event.type == pg.MOUSEBUTTONDOWN:
+            elif event.type == pg.VIDEORESIZE:
+                screen_width, screen_height = event.w, event.h
+                screen = pg.display.set_mode((screen_width, screen_height), pg.RESIZABLE)
+            elif event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 3:
                     dragging = True
                 elif event.button == 4:
@@ -210,7 +214,7 @@ def main():
             elif event.type == pg.MOUSEMOTION and dragging:
                 camera.handle_move(event.rel)
 
-        camera.apply_limits(view_surf)
+        camera.apply_limits(view_surf, screen_width, screen_height)
         screen.fill((30, 30, 30))
 
         # Сначала рисуем саму карту
