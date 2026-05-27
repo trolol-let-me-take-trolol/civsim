@@ -89,7 +89,7 @@ class WorldRenderer:
     def update_view(self, zoom):
         size = (int(self.world.w * CELL_SIZE * zoom),
                 int(self.world.h * CELL_SIZE * zoom))
-        return pg.transform.smoothscale(self.full_surf, size)
+        return pg.transform.scale(self.full_surf, size)
 
     def draw_units(self, screen, camera):
         for group in self.world.active_groups:
