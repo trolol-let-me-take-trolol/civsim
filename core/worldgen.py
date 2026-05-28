@@ -12,12 +12,6 @@ class Tile:
         self.overlay = overlay
         self.building = None
 
-    def get_resources(self):
-        base_f, base_p, base_g = TILE_STATS[self.type]
-        ov_f, ov_p, ov_g = OVERLAY_STATS[self.overlay]
-        return base_f + ov_f, base_p + ov_p, base_g + ov_g
-
-
 class World:
     def __init__(self, w, h, units, buildings, seed=None):
         self.w = w

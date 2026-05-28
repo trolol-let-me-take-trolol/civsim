@@ -28,18 +28,6 @@ TILE_MOUNTAIN = 2
 OVERLAY_NONE = 0
 OVERLAY_IRON = 1
 
-# --- Экономика (Food, Prod, Gold) ---
-TILE_STATS = {
-    TILE_PLAIN: (2, 1, 1),
-    TILE_FOREST: (1, 2, 0),
-    TILE_MOUNTAIN: (0, 1, 0)
-}
-
-OVERLAY_STATS = {
-    OVERLAY_NONE: (0, 0, 0),
-    OVERLAY_IRON: (0, 3, 0)
-}
-
 # --- Интерфейс ---
 TILE_NAMES = {
     TILE_PLAIN: "Plain",
