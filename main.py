@@ -112,9 +112,8 @@ class WorldRenderer:
                     ty * CELL_SIZE * camera.zoom + camera.y,
                     CELL_SIZE * camera.zoom, CELL_SIZE * camera.zoom)
             pg.draw.rect(screen, SELECT_COLOR, rect, 2)
-            f, p, g = tile.get_resources()
             info = f"Coord: {tx},{ty} | {TILE_NAMES[tile.type]} " \
-                   f"{OVERLAY_NAMES[tile.overlay]} | F:{f} P:{p} G:{g}"
+                   f"{OVERLAY_NAMES[tile.overlay]}"
             pg.display.set_caption(info)
 
 def init():
