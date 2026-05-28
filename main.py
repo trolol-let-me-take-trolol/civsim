@@ -193,6 +193,15 @@ def main():
                     dragging = False
             elif event.type == pg.MOUSEMOTION and dragging:
                 camera.handle_move(event.rel)
+            elif event.type == pg.KEYDOWN:
+                if event.key == pg.K_MINUS:
+                    res = camera.handle_zoom(pg.mouse.get_pos(), "out", renderer)
+                    if res:
+                        view_surf = res
+                elif event.key == pg.K_EQUALS:
+                    res = camera.handle_zoom(pg.mouse.get_pos(), "in", renderer)
+                    if res:
+                        view_surf = res
 
         camera.apply_limits(view_surf)
         screen.fill((30, 30, 30))
